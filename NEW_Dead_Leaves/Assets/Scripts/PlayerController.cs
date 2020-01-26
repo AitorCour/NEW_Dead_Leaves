@@ -4,9 +4,9 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
-    public Camera cameraDef;
+    private GameObject cameraDef;
     public GameObject mesh;
-
+    private CameraManager cameraManager;
     public float speed;
     private float timeRotate = 10;
     public float rayDistance;
@@ -26,6 +26,7 @@ public class PlayerController : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        cameraManager = GameObject.FindGameObjectWithTag("Manager").GetComponent<CameraManager>();
         stopped = new Vector2(0, 0);
         canWalk = true;
         canMoveForward = true;
@@ -77,5 +78,10 @@ public class PlayerController : MonoBehaviour
             Quaternion lookRotation = Quaternion.LookRotation(movement);
             mesh.transform.rotation = Quaternion.RotateTowards(mesh.transform.rotation, lookRotation, timeRotate);
         }
+    }
+    public void ChangeCamera(GameObject newCamera)
+    {
+        cameraDef = newCamera;
+        Debug.Log("CameraChanged");
     }
 }
