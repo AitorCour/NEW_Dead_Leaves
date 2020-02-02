@@ -41,4 +41,5 @@ public class CameraManager : MonoBehaviour
         }
         player.ChangeCamera(actualCamera);
     }
+
 }
