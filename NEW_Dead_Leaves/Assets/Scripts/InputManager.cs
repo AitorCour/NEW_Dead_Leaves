@@ -6,19 +6,21 @@ public class InputManager : MonoBehaviour
 {
     private PlayerController playerController;
     private LookRotation lookRotation;
-    public GameObject cameraPlayer;
+    private CameraManager cameraManager;
     private bool pointing;
     private bool firstPerson;
+    private bool canWalk;
     private float sensitivity = 2.5f;
     // Start is called before the first frame update
     void Start()
     {
         playerController = GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerController>();
+        cameraManager = GameObject.FindGameObjectWithTag("Manager").GetComponent<CameraManager>();
         lookRotation = playerController.GetComponent<LookRotation>();
-        //cameraPlayer = GameObject.FindGameObjectWithTag("MainCamera");
-        cameraPlayer.SetActive(false);
         pointing = false;
         firstPerson = false;
+        canWalk = true;
+        HideCursor();
     }
 
     // Update is called once per frame
@@ -28,9 +30,26 @@ public class InputManager : MonoBehaviour
 
         inputAxis.x = Input.GetAxisRaw("Horizontal");
         inputAxis.y = Input.GetAxisRaw("Vertical");
-        playerController.Move(inputAxis);
+        if(canWalk)
+        {
+            playerController.Move(inputAxis);
+        }
+        
 
-        if(Input.GetButtonDown("Jump"))
+        //FP
+        Vector2 mouseAxis = Vector2.zero;
+        mouseAxis.x = Input.GetAxis("Mouse X") * sensitivity;
+        mouseAxis.y = Input.GetAxis("Mouse Y") * sensitivity;
+        if (firstPerson)
+        {
+            lookRotation.SetRotation(mouseAxis);
+        }
+        //else return;
+        //
+
+        if (Input.GetMouseButtonDown(0)) HideCursor();
+        else if (Input.GetKeyDown(KeyCode.Escape)) ShowCursor();
+        if (Input.GetButtonDown("Jump"))
         {
             if(pointing)
             {
@@ -52,13 +71,9 @@ public class InputManager : MonoBehaviour
             if(pointing && !firstPerson)
             {
                 Debug.Log("FP");
-                lookRotation.SetStart();
-                Vector2 mouseAxis = Vector2.zero;
-                mouseAxis.x = Input.GetAxis("Mouse X") * sensitivity;
-                mouseAxis.y = Input.GetAxis("Mouse Y") * sensitivity;
-                lookRotation.SetRotation(mouseAxis);
-                cameraPlayer.SetActive(true);
+                cameraManager.FPCamera();
                 firstPerson = true;
+                canWalk = false;
             }
             else if(firstPerson && pointing)
             {
@@ -68,9 +83,22 @@ public class InputManager : MonoBehaviour
     }
     void QuitFP()
     {
-        cameraPlayer.SetActive(false);
         Debug.Log("NO FP");
         firstPerson = false;
+        cameraManager.FixedActive();
+        lookRotation.SetNormalRotation();
+        canWalk = true;
+    }
+    public void ShowCursor()
+    {
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
+    }
+
+    public void HideCursor()
+    {
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
     }
 }
 

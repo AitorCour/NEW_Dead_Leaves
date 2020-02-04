@@ -12,7 +12,6 @@ public class PlayerController : MonoBehaviour
     private float timeRotate = 10;
     public float rayDistance;
 
-    private bool canWalk;
     private bool canMoveForward;
 
     private Vector2 stopped;
@@ -28,7 +27,6 @@ public class PlayerController : MonoBehaviour
         cameraManager = GameObject.FindGameObjectWithTag("Manager").GetComponent<CameraManager>();
         animator = GetComponentInChildren<Animator>();
         stopped = new Vector2(0, 0);
-        canWalk = true;
         canMoveForward = true;
     }
     private void OnDrawGizmos()
