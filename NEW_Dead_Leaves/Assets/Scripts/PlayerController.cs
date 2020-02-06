@@ -94,4 +94,8 @@ public class PlayerController : MonoBehaviour
         animator.SetBool("Pointing", false);
         speed = speed * 2;
     }
+    public void BaangState()
+    {
+        animator.SetTrigger("Baang");
+    }
 }

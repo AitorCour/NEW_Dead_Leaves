@@ -5,21 +5,25 @@ using UnityEngine;
 public class InputManager : MonoBehaviour
 {
     private PlayerController playerController;
+    private Gun gun;
     private LookRotation lookRotation;
     private CameraManager cameraManager;
     private bool pointing;
     private bool firstPerson;
     private bool canWalk;
+    private bool canShot;
     private float sensitivity = 2.5f;
     // Start is called before the first frame update
     void Start()
     {
         playerController = GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerController>();
+        gun = playerController.GetComponent<Gun>();
         cameraManager = GameObject.FindGameObjectWithTag("Manager").GetComponent<CameraManager>();
         lookRotation = playerController.GetComponent<LookRotation>();
         pointing = false;
         firstPerson = false;
         canWalk = true;
+        canShot = false;
         HideCursor();
     }
 
@@ -62,7 +66,7 @@ public class InputManager : MonoBehaviour
             {
                 pointing = true;
                 playerController.ShootState();
-
+                canShot = true;
             }
         }
         if(Input.GetButtonDown("FP"))
@@ -80,6 +84,24 @@ public class InputManager : MonoBehaviour
                 QuitFP();
             }
         }
+        if(Input.GetButtonDown("ShootButton") && pointing)
+        {
+            //Dispara
+            if (firstPerson)
+            {
+                gun.fps = true;
+                gun.Shot();
+                playerController.BaangState();
+                Debug.Log("Primera persona");
+            }
+            else
+            {
+                gun.fps = false;
+                gun.Shot();
+                playerController.BaangState();
+                Debug.Log("Tercera persona");
+            }
+        }
     }
     void QuitFP()
     {
@@ -88,6 +110,7 @@ public class InputManager : MonoBehaviour
         cameraManager.FixedActive();
         lookRotation.SetNormalRotation();
         canWalk = true;
+        canShot = false;
     }
     public void ShowCursor()
     {
