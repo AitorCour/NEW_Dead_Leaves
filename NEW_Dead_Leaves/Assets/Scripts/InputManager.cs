@@ -69,7 +69,7 @@ public class InputManager : MonoBehaviour
                 canShot = true;
             }
         }
-        if(Input.GetButtonDown("FP"))
+        if(Input.GetButton("Fire2"))
         {
             //Poner primera persona
             if(pointing && !firstPerson)
@@ -79,12 +79,19 @@ public class InputManager : MonoBehaviour
                 firstPerson = true;
                 canWalk = false;
             }
-            else if(firstPerson && pointing)
+            /*else if(firstPerson && pointing)
             {
                 QuitFP();
-            }
+            }*/
         }
-        if(Input.GetButtonDown("ShootButton") && pointing)
+        else
+        {
+            if(firstPerson && pointing)
+            {
+                QuitFP();
+            } 
+        }
+        if(Input.GetButtonDown("ShootButton") && pointing || Input.GetButtonDown("Fire1") && pointing)
         {
             //Dispara
             if (firstPerson)
