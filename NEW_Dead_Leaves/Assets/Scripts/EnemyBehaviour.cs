@@ -5,7 +5,7 @@ using UnityEngine.AI;
 
 public class EnemyBehaviour : MonoBehaviour
 {
-    public enum State { Idle, Patrol, Chase, Attack, Sleep, Hit, Dead };
+    public enum State { Idle, Patrol, Chase, Grab, Sleep, Hit, Dead };
     public State state;
 
     protected NavMeshAgent agent;
@@ -23,10 +23,13 @@ public class EnemyBehaviour : MonoBehaviour
     private bool isInFov;
     private bool detected;
     public bool changePoint;
+    private bool canGrab;
 
     public GameObject[] path;
     protected Transform[] transformPath;
     private int pathNum;
+
+
 
     // Start is called before the first frame update
     void Start()
@@ -40,6 +43,7 @@ public class EnemyBehaviour : MonoBehaviour
         isInFov = false;
         detected = false;
         changePoint = false;
+        canGrab = true;
 
         transformPath = new Transform[path.Length];
         for (int i = 0; i < path.Length; i++)
@@ -124,10 +128,10 @@ public class EnemyBehaviour : MonoBehaviour
             case State.Chase:
                 ChaseUpdate();
                 break;
-            /*case State.Attack:
-                //AttackUpdate();
+            case State.Grab:
+                GrabUpdate();
                 break;
-            case State.Sleep:
+            /*case State.Sleep:
                 //SleepUpdate();
                 break;
             case State.Hit:
@@ -171,7 +175,19 @@ public class EnemyBehaviour : MonoBehaviour
     }
     void ChaseUpdate()
     {
-        agent.SetDestination(player.transform.position);
+        distancePath = Vector3.Distance(player.transform.position, transform.position);
+        agent.SetDestination(player.transform.position - transform.forward);
+        if(distancePath <= 1.2 && canGrab)
+        {
+            SetGrab();
+        }
+    }
+    void GrabUpdate()
+    {
+        Quaternion targetRotation = Quaternion.LookRotation(player.transform.position - transform.position);
+        agent.SetDestination(player.transform.position - transform.forward);
+        transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRotation, 10f);
+        
     }
     //a ver... primero los updates, y luego desde esos updates llamar a estos sets
     #region Sets
@@ -179,6 +195,7 @@ public class EnemyBehaviour : MonoBehaviour
     {
         //decir que haga animación
         state = State.Idle;
+        animator.SetBool("Grabing", false);
         animator.SetBool("Walking", false);
         StartCoroutine(IdleTime());
     }
@@ -203,6 +220,16 @@ public class EnemyBehaviour : MonoBehaviour
     void SetChase()
     {
         state = State.Chase;
+        animator.SetBool("Walking", true);
+    }
+    void SetGrab()
+    {
+        if (!canGrab) return;
+        state = State.Grab;
+        animator.SetBool("Walking", false);
+        animator.SetBool("Grabing", true);
+        player.Caught();
+        StartCoroutine(GrabTime());
     }
     #endregion
     private IEnumerator IdleTime()
@@ -215,5 +242,18 @@ public class EnemyBehaviour : MonoBehaviour
     {
         int i = Random.Range(0, path.Length);
         pathNum = i;
+    }
+    private IEnumerator GrabTime()
+    {
+        yield return new WaitForSeconds(idleTime);
+        player.SetFree();
+        canGrab = false;
+        StartCoroutine(StunnedTime());
+        SetIdle();
+    }
+    private IEnumerator StunnedTime()
+    {
+        yield return new WaitForSeconds(idleTime);
+        canGrab = true;
     }
 }

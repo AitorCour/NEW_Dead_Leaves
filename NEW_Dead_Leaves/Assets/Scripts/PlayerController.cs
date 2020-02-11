@@ -13,6 +13,7 @@ public class PlayerController : MonoBehaviour
     public float rayDistance;
 
     private bool canMoveForward;
+    private bool canWalk;
 
     private Vector2 stopped;
     public Vector2 actualVector;
@@ -28,6 +29,7 @@ public class PlayerController : MonoBehaviour
         animator = GetComponentInChildren<Animator>();
         stopped = new Vector2(0, 0);
         canMoveForward = true;
+        canWalk = true;
     }
     private void OnDrawGizmos()
     {
@@ -49,6 +51,7 @@ public class PlayerController : MonoBehaviour
     }
     public void Move(Vector2 inputAxis)
     {
+        if (!canWalk) return;
         input = inputAxis;
         if (cameraDef == null) return;
         else if(inputAxis == stopped)//stooped es un vector 00
@@ -97,5 +100,15 @@ public class PlayerController : MonoBehaviour
     public void BaangState()
     {
         animator.SetTrigger("Baang");
+    }
+    public void Caught()
+    {
+        canWalk = false;
+        animator.SetBool("Caught", true);
+    }
+    public void SetFree()
+    {
+        canWalk = true;
+        animator.SetBool("Caught", false);
     }
 }
