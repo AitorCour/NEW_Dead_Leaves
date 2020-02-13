@@ -14,6 +14,8 @@ public class PlayerController : MonoBehaviour
 
     private bool canMoveForward;
     private bool canWalk;
+    public bool canShoot;
+    public bool caught;
 
     private Vector2 stopped;
     public Vector2 actualVector;
@@ -30,6 +32,8 @@ public class PlayerController : MonoBehaviour
         stopped = new Vector2(0, 0);
         canMoveForward = true;
         canWalk = true;
+        canShoot = true;
+        caught = false;
     }
     private void OnDrawGizmos()
     {
@@ -89,8 +93,12 @@ public class PlayerController : MonoBehaviour
     }
     public void ShootState()
     {
-        animator.SetBool("Pointing", true);
-        speed = speed / 2;
+        if (canShoot)
+        {
+            animator.SetBool("Pointing", true);
+            speed = speed / 2;
+        }
+        else return;
     }
     public void NormalState()
     {
@@ -104,11 +112,15 @@ public class PlayerController : MonoBehaviour
     public void Caught()
     {
         canWalk = false;
+        canShoot = false;
+        caught = true;
         animator.SetBool("Caught", true);
     }
     public void SetFree()
     {
         canWalk = true;
+        canShoot = true;
+        caught = false;
         animator.SetBool("Caught", false);
     }
 }

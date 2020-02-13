@@ -8,11 +8,15 @@ public class InputManager : MonoBehaviour
     private Gun gun;
     private LookRotation lookRotation;
     private CameraManager cameraManager;
+
     private bool pointing;
     private bool firstPerson;
     private bool canWalk;
     private bool canShot;
+
     private float sensitivity = 2.5f;
+    public int freeCounter = 50;//si clicka, +=, si pasa el timepo -=
+    private float timeCounter = 0;
     // Start is called before the first frame update
     void Start()
     {
@@ -53,7 +57,7 @@ public class InputManager : MonoBehaviour
 
         if (Input.GetMouseButtonDown(0)) HideCursor();
         else if (Input.GetKeyDown(KeyCode.Escape)) ShowCursor();
-        if (Input.GetButtonDown("Jump"))
+        if (Input.GetButtonDown("Jump") && canShot)
         {
             if(pointing)
             {
@@ -91,7 +95,7 @@ public class InputManager : MonoBehaviour
                 QuitFP();
             } 
         }
-        if(Input.GetButtonDown("ShootButton") && pointing || Input.GetButtonDown("Fire1") && pointing)
+        if(Input.GetButtonDown("ShootButton") && pointing && playerController.canShoot || Input.GetButtonDown("Fire1") && pointing && playerController.canShoot)
         {
             //Dispara
             if (firstPerson)
@@ -108,6 +112,31 @@ public class InputManager : MonoBehaviour
                 playerController.BaangState();
                 Debug.Log("Tercera persona");
             }
+        }
+        if(playerController.caught)
+        {
+            if(timeCounter >= 1)
+            {
+                freeCounter -= 6;
+                timeCounter = 0;
+            }
+            if (Input.GetButtonDown("Fire1"))
+            {
+                freeCounter += 3;
+            }
+            if (freeCounter >= 100)
+            {
+                //free
+                freeCounter = 50;
+                playerController.SetFree();
+                Debug.Log("Freeeeee");
+            }
+            else if (freeCounter <= 0)
+            {
+                //dead
+                Debug.Log("deadddddd");
+            }
+            timeCounter += Time.deltaTime;
         }
     }
     void QuitFP()
@@ -129,6 +158,10 @@ public class InputManager : MonoBehaviour
     {
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
+    }
+    public void TimerGrab()
+    {
+
     }
 }
 
