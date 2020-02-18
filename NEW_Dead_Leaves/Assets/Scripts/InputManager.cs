@@ -27,7 +27,7 @@ public class InputManager : MonoBehaviour
         pointing = false;
         firstPerson = false;
         canWalk = true;
-        canShot = false;
+        canShot = true;
         HideCursor();
     }
 
@@ -120,7 +120,7 @@ public class InputManager : MonoBehaviour
                 freeCounter -= 6;
                 timeCounter = 0;
             }
-            if (Input.GetButtonDown("Fire1"))
+            if (Input.GetButtonDown("ShootButton"))
             {
                 freeCounter += 3;
             }
