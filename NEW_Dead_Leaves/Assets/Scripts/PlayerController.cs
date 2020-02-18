@@ -8,9 +8,12 @@ public class PlayerController : MonoBehaviour
     public GameObject mesh;
     private CameraManager cameraManager;
     private Animator animator;
+    private CharacterController characterController;
     public float speed;
     private float timeRotate = 10;
     public float rayDistance;
+    private float forceToGround = Physics.gravity.y;
+    private float gravityMag = 9.81f;
 
     private bool canMoveForward;
     private bool canWalk;
@@ -22,6 +25,7 @@ public class PlayerController : MonoBehaviour
     private Vector2 input;
     private Vector3 rightDef;
     private Vector3 forwardDef;
+    private Vector3 moveDirection;
 
     public LayerMask ground;
     // Start is called before the first frame update
@@ -29,6 +33,7 @@ public class PlayerController : MonoBehaviour
     {
         cameraManager = GameObject.FindGameObjectWithTag("Manager").GetComponent<CameraManager>();
         animator = GetComponentInChildren<Animator>();
+        characterController = GetComponent<CharacterController>();
         stopped = new Vector2(0, 0);
         canMoveForward = true;
         canWalk = true;
@@ -43,6 +48,17 @@ public class PlayerController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if(characterController.isGrounded)
+        {
+            moveDirection.y = forceToGround;
+        }
+        else
+        {
+            moveDirection.y += Physics.gravity.y * gravityMag * Time.deltaTime;
+            Debug.Log("NotGrounded");
+        }
+        characterController.Move(moveDirection * Time.deltaTime);
+
         Vector3 direction = mesh.transform.TransformDirection(Vector3.forward);
         if (Physics.Raycast(mesh.transform.position, direction, rayDistance, ground) && canMoveForward)
         {
@@ -79,6 +95,9 @@ public class PlayerController : MonoBehaviour
         if(canMoveForward)
         {
             transform.Translate(movement * speed);
+
+            //moveDirection = movement * speed;
+            //characterController.Move(moveDirection * Time.deltaTime);
         }
         if (movement != Vector3.zero) //Rota el personaje. se rota su mesh, no el objeto en si
         {
